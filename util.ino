@@ -1,12 +1,12 @@
-void setarPinos(){
-  pinMode(pinoVermelho, OUTPUT);
+void setPins(){
+  pinMode(redLED, OUTPUT);
   pinMode(32, OUTPUT);
   pinMode(26, OUTPUT);
 
   for(int i=0;i<5;i++){
-    digitalWrite(pinoVermelho,HIGH);
+    digitalWrite(redLED,HIGH);
     delay(100);
-    digitalWrite(pinoVermelho,LOW);
+    digitalWrite(redLED,LOW);
     delay(50);
   }
 }
