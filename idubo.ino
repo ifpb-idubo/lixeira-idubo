@@ -32,6 +32,10 @@ void setup() {
 
   verifyData(SPIFFS, "/", 0);                              // Define temDadoArmazenado como false caso não exista dados salvos no root e true caso tenha. Também lista o nome dos arquivos salvos na SPIFFS
   //deleteData();
+
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR); // Define o modo de despertar do Deep Sleep para Timer a cada x segundos
+
+  if(esp_sleep_get_wakeup_cause() == 1) Serial.println("Forçado a acordar");
 }
 
 void loop() {
