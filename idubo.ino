@@ -1,30 +1,50 @@
+#include "FS.h"
 #include "ServerBLE.h"
-#include <SimpleDHT.h>
+#include "SPIFFS.h"
+#include <Ultrasonic.h>
+#include <WiFi.h>
+#include <EasyHTTP.h>
 
-SimpleDHT11 dht(21);
+#define FORMAT_SPIFFS_IF_FAILED true
+#define uS_TO_S_FACTOR 1000000
+#define TIME_TO_SLEEP  300
+
 ServerBLE server;
+
+int sensorLevel;
+Ultrasonic ultrasonic(12, 13);
+
+bool isDataSaved = false;
+RTC_DATA_ATTR int bootCount = 0;
+
+String ssid = "";
+String password = "";
+
+String baseURL = "http://192.168.1.7:3000";
+
+char* _;
+
+EasyHTTP http(_, _);
 
 void setup() {
   Serial.begin(115200);
-  server.start();
+  Serial.println("Boot numero: " + String(bootCount));
+  if(esp_sleep_get_wakeup_cause() == 1) Serial.println("Forçado a acordar");
+
+  http.setBaseURL(baseURL);
+
+  verifyFile(SPIFFS, "/", 0);
+  //wipeData();
+
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+
+  if(!isDataSaved) server.start();
+  else checkSensor();
 }
 
 void loop() {
-  refreshSettings();
-
-  delay(2000);
-}
-
-void refreshSettings() {
-  std::string ssid = server.getSSID();
-  std::string password = server.getPassword();
-
-  if (ssid.length() == 0 || password.length() == 0) {
-    return;
+  if(!isDataSaved) {
+    refreshSettings(); 
+    delay(2000);
   }
-
-  Serial.print("SSID value: ");
-  Serial.println(ssid.c_str());
-  Serial.print("Passowrd value: ");
-  Serial.println(password.c_str());
 }
